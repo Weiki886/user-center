@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.weiki.usercenter.mapper.UserMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.weiki.usercenter.entity.User">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="userAccount" column="user_account"/>
+        <result property="userPassword" column="user_password"/>
+        <result property="gender" column="gender"/>
+        <result property="phone" column="phone"/>
+        <result property="email" column="email"/>
+        <result property="avatarUrl" column="avatar_url"/>
+        <result property="userProfile" column="user_profile"/>
+        <result property="userRole" column="user_role"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="isDelete" column="is_delete"/>
+    </resultMap>
+    
+    <!-- SQL片段 -->
+    <sql id="Base_Column_List">
+        id, username, user_account, user_password, gender, 
+        phone, email, avatar_url, user_profile, user_role, 
+        create_time, update_time, is_delete
+    </sql>
+    
+    <!-- 插入操作 -->
+    <insert id="insert" parameterType="User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user (
+            username, user_account, user_password, gender, 
+            phone, email, avatar_url, user_profile, user_role, is_delete
+        ) VALUES (
+            #{username}, #{userAccount}, #{userPassword}, #{gender}, 
+            #{phone}, #{email}, #{avatarUrl}, #{userProfile}, #{userRole}, #{isDelete}
+        )
+    </insert>
+    
+    <!-- 查询操作 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE id = #{id} AND is_delete = 0
+    </select>
+    
+    <select id="selectByAccount" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE user_account = #{userAccount} AND is_delete = 0
+    </select>
+
+    <!-- 查询账号（包括已删除的，用于注册时恢复） -->
+    <select id="selectByAccountIncludeDeleted" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE user_account = #{userAccount}
+    </select>
+
+    <!-- 恢复并更新已删除的用户信息 -->
+    <update id="recoverAndUpdate">
+        UPDATE user
+        <set>
+            <if test="username != null">username = #{username},</if>
+            <if test="userPassword != null">user_password = #{userPassword},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="avatarUrl != null">avatar_url = #{avatarUrl},</if>
+            <if test="userRole != null">user_role = #{userRole},</if>
+            is_delete = 0,
+            update_time = CURRENT_TIMESTAMP
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE is_delete = 0
+        ORDER BY create_time DESC
+    </select>
+    
+    <select id="selectByUsername" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE username LIKE CONCAT('%', #{username}, '%') AND is_delete = 0
+        ORDER BY create_time DESC
+    </select>
+    
+    <select id="selectByPage" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user
+        WHERE is_delete = 0
+        <if test="username != null and username != ''">
+            AND username LIKE CONCAT('%', #{username}, '%')
+        </if>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{size}
+    </select>
+    
+    <!-- 更新操作 -->
+    <update id="update">
+        UPDATE user
+        <set>
+            <if test="username != null">username = #{username},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="avatarUrl != null">avatar_url = #{avatarUrl},</if>
+            <if test="userProfile != null">user_profile = #{userProfile},</if>
+            <if test="userRole != null">user_role = #{userRole},</if>
+            update_time = CURRENT_TIMESTAMP
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <update id="updatePasswordById">
+        UPDATE user
+        SET user_password = #{newPassword}, update_time = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 删除操作 -->
+    <delete id="logicalDeleteById">
+        UPDATE user
+        SET is_delete = 1, update_time = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </delete>
+    
+    <!-- 统计操作 -->
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM user WHERE is_delete = 0
+        <if test="username != null and username != ''">
+            AND username LIKE CONCAT('%', #{username}, '%')
+        </if>
+    </select>
+
+</mapper>
+
+

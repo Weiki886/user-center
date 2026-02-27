@@ -1,0 +1,67 @@
+# Spring Boot 主配置文件
+# 包含所有环境的公共配置
+
+# ==================== 服务器配置 ====================
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# ==================== Spring配置 ====================
+spring:
+  profiles:
+    active: dev
+  application:
+    name: user-center-backend
+  # 解决 Spring Boot 2.6+ 与 Springfox 3.0 兼容性问题
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# ==================== MyBatis配置 ====================
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.weiki.usercenter.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# ==================== 配置日志级别 ====================
+logging:
+  level:
+    # 我们项目的日志级别
+    com.weiki.usercenter: debug
+    # SQL日志级别
+    com.weiki.usercenter.mapper: debug
+    # Springfox 日志
+    springfox: OFF
+
+# ==================== Springfox/Swagger 配置 ====================
+springfox:
+  documentation:
+    auto-startup: true
+    swagger-ui:
+      enabled: true
+      path: /swagger-ui.html
+      use-root-path: true
+
+# ==================== Knife4j OpenAPI 3 配置 ====================
+# Knife4j 2.x 配置 (Spring Boot 2.x 兼容)
+knife4j:
+  enable: true
+  setting:
+    language: zh_CN
+    swagger-model-name: 实体类列表
+
+# ==================== 文件上传配置 ====================
+file:
+  upload:
+    # 头像存储路径
+    avatar-path: ./uploads/avatar
+    # 头像访问URL前缀
+    avatar-url: /api/avatar
