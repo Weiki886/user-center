@@ -192,10 +192,6 @@ npm run build
 |------|------|------|
 | POST | /api/file/upload | 上传文件 |
 
-## 项目预览
-
-![用户中心界面](./docs/images/preview.png)
-
 ## 配置说明
 
 ### 开发环境配置
